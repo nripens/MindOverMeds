@@ -28,23 +28,7 @@ class HomeScreen extends ConsumerWidget {
         centerTitle: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.shield_outlined, size: 14, color: Colors.grey),
-                const SizedBox(width: 4),
-                Text('OFFLINE', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          )
-        ],
+        actions: [],
       ),
       body: medicinesAsync.when(
         data: (medicines) {
@@ -140,17 +124,17 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildMedicineCard(BuildContext context, Medicine medicine, List<MedicineLog> logs, WidgetRef ref, DateTime date) {
     // Compact: Reduce padding from 20 to 12. Reduce margin.
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Reduced vertical padding
+      margin: const EdgeInsets.only(bottom: 8), // Reduced margin
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Reduced vertical padding
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20), // Slightly smaller radius
+        borderRadius: BorderRadius.circular(16), // Smaller radius
         border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           )
         ],
       ),
@@ -162,9 +146,8 @@ class HomeScreen extends ConsumerWidget {
             children: [
               Text(
                 medicine.name,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold), // Reduced font size slightly via style
               ),
-              // Option to delete
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
                 onPressed: () {
@@ -175,7 +158,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16), // Reduced space
+          const SizedBox(height: 12), // Reduced space
           // Fixed 3-column layout for alignment
           Row(
             children: [

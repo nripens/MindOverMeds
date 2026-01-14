@@ -1,10 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <application
-        android:label="Mind Over Meds"
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
-
     <!-- Strict Local-Only: Explicitly remove INTERNET permission -->
     <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
 
@@ -14,6 +9,11 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+
+    <application
+        android:label="Mind Over Meds"
+        android:name="${applicationName}"
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"

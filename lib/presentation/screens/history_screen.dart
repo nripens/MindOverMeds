@@ -36,7 +36,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       ),
       body: Column(
         children: [
-          _buildCalendar(),
+          _buildCalendar(medicinesAsync.asData?.value, logsAsync.asData?.value),
           const SizedBox(height: 16),
           _buildLegend(),
           const SizedBox(height: 16),
@@ -58,7 +58,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     );
   }
 
-  Widget _buildCalendar() {
+  Widget _buildCalendar(List<Medicine>? medicines, List<MedicineLog>? logs) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -77,11 +77,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         firstDay: DateTime.utc(2025, 1, 1),
         lastDay: DateTime.utc(2030, 12, 31),
         focusedDay: _focusedDay,
-        currentDay: DateTime.now(), // Highlight today correctly
+        currentDay: DateTime.now(),
+        calendarFormat: CalendarFormat.month,
+        rowHeight: 42,
+        daysOfWeekHeight: 40, // Increase space for Sun/Mon row
         selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
         onDaySelected: (selectedDay, focusedDay) {
           setState(() {
-            _selectedDay = selectedDay; // Keep raw for UI matching
+            _selectedDay = selectedDay;
             _focusedDay = focusedDay;
           });
         },
@@ -97,15 +100,62 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
           todayTextStyle: TextStyle(color: AppTheme.primaryBlue),
         ),
+        daysOfWeekStyle: const DaysOfWeekStyle(
+           decoration: BoxDecoration(color: Colors.transparent),
+           weekdayStyle: TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold),
+           weekendStyle: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold),
+        ),
         headerStyle: const HeaderStyle(
           formatButtonVisible: false,
-          titleCentered: false,
-          titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          leftChevronIcon: Icon(Icons.chevron_left, color: Colors.black),
-          rightChevronIcon: Icon(Icons.chevron_right, color: Colors.black),
+          titleCentered: true,
+          titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          leftChevronIcon: Icon(Icons.chevron_left, color: Colors.black, size: 24),
+          rightChevronIcon: Icon(Icons.chevron_right, color: Colors.black, size: 24),
+          headerMargin: EdgeInsets.only(bottom: 20), // More space between Header and Days
         ),
          calendarBuilders: CalendarBuilders(
            selectedBuilder: (context, date, focusedDay) {
+              // Determine status color for THE SELECTED DAY
+              Color indicatorColor = Colors.orange; // Default/Pending
+              
+              if (medicines != null && logs != null && medicines.isNotEmpty) {
+                 bool allTaken = true;
+                 // Ideally we check if "all ENABLED slots for TODAY" are taken.
+                 for (var m in medicines) {
+                   if (m.takeMorning) {
+                      if (!logs.any((l) => l.medicineId == m.id && l.slot == 'morning' && l.isTaken)) allTaken = false;
+                   }
+                   if (m.takeAfternoon) {
+                      if (!logs.any((l) => l.medicineId == m.id && l.slot == 'afternoon' && l.isTaken)) allTaken = false;
+                   }
+                   if (m.takeEvening) {
+                      if (!logs.any((l) => l.medicineId == m.id && l.slot == 'evening' && l.isTaken)) allTaken = false;
+                   }
+                 }
+                 
+                 if (allTaken) {
+                   indicatorColor = AppTheme.successGreen;
+                 } else {
+                   // If not all taken, is it Missed (Red) or Pending (Orange)?
+                   // User said "red only when any medicine is missed".
+                   // If date is Today, untaken is Pending. If Past, untaken is Missed.
+                   // But user simplified requirement: "taken all ... green ... red only when missed".
+                   // Let's assume strict Red for not-all-taken to incentivize completion?
+                   // Or respect time.
+                   final now = DateTime.now();
+                   final todayMidnight = DateTime(now.year, now.month, now.day);
+                   if (date.isBefore(todayMidnight)) {
+                      indicatorColor = AppTheme.errorRed; // Past & Incomplete = Missed
+                   } else {
+                      // Today or Future. 
+                      // If Today, it is likely Pending (Orange) unless user insists on Red.
+                      // Screenshots show Green Checks for taken.
+                      // Assuming Orange for Pending is safer/nicer UX than Red for "Not yet taken today".
+                      indicatorColor = Colors.orange; 
+                   }
+                 }
+              }
+
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -115,7 +165,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     const SizedBox(height: 4),
-                    Container(height: 3, width: 14, color: Colors.orange) 
+                    Container(height: 3, width: 14, color: indicatorColor) 
                   ],
                 ),
               );

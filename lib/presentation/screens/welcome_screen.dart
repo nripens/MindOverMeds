@@ -17,13 +17,13 @@ class WelcomeScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 20), // Reduced from 40
                 // Header
                 Column(
                   children: [
                     // Placeholder for Logo or Icon if needed, or just text
-                    const Icon(Icons.verified_user_outlined, size: 80, color: Color(0xFFE0E7FF)), // Light blue shield-ish
-                    const SizedBox(height: 24),
+                    const Icon(Icons.verified_user_outlined, size: 60, color: Color(0xFFE0E7FF)), // Reduced from 80
+                    const SizedBox(height: 16), // Reduced from 24
                     Text(
                       'Welcome to',
                       style: Theme.of(context).textTheme.displayMedium,
@@ -40,7 +40,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 20), // Reduced from 40
 
                 // Info Cards
                 _buildInfoCard(
@@ -49,14 +49,14 @@ class WelcomeScreen extends StatelessWidget {
                   iconColor: AppTheme.errorRed,
                   text: 'This app is a reminder tool only. It does not provide medical advice.',
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12), // Reduced from 16
                 _buildInfoCard(
                   context,
                   icon: Icons.info_outline,
                   iconColor: AppTheme.primaryBlue,
                   text: 'Always follow your doctor\'s official prescription instructions.',
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12), // Reduced from 16
                 _buildInfoCard(
                   context,
                   icon: Icons.security,
@@ -98,7 +98,7 @@ class WelcomeScreen extends StatelessWidget {
   Widget _buildInfoCard(BuildContext context,
       {required IconData icon, required Color iconColor, required String text}) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12), // Reduced from 16
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC), // Very light grey/blue
         borderRadius: BorderRadius.circular(16),
@@ -108,7 +108,7 @@ class WelcomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: iconColor, size: 28),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12), // Reduced from 16
           Expanded(
             child: Text(
               text,

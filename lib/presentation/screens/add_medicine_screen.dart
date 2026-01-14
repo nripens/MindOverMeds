@@ -97,12 +97,12 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
         centerTitle: false,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0), // Reduced from 24
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Medicine Name', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4), // Reduced from 8
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
@@ -113,14 +113,14 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.all(20),
+                contentPadding: const EdgeInsets.all(16), // Reduced from 20
               ),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             
-            const SizedBox(height: 24),
+            const SizedBox(height: 16), // Reduced from 24
             Text('Reminder Times', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8), // Reduced from 12
             
             // Morning
             _buildTimeRow(
@@ -137,7 +137,7 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
               },
               onTimeTap: () => _pickTime(_morningTime, (t) => setState(() => _morningTime = t)),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8), // Reduced from 12
             
             // Afternoon
             _buildTimeRow(
@@ -154,7 +154,7 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
               },
               onTimeTap: () => _pickTime(_afternoonTime, (t) => setState(() => _afternoonTime = t)),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8), // Reduced from 12
             
             // Evening
             _buildTimeRow(
@@ -172,42 +172,45 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
               onTimeTap: () => _pickTime(_eveningTime, (t) => setState(() => _eveningTime = t)),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16), // Reduced from 24
             Text('Duration (Days)', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4), // Reduced from 8
             
             Row(
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Reduced from 8
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                         Text(
-                           _duration == 0 ? '0' : '$_duration',
-                           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                         ),
-                         // Stepper (Simple +/-)
-                         Row(
-                           children: [
-                             IconButton(
-                               icon: const Icon(Icons.remove_circle_outline),
-                               onPressed: () {
-                                 if (_duration > 0) setState(() => _duration--);
-                               },
-                             ),
-                             IconButton(
-                               icon: const Icon(Icons.add_circle_outline),
-                               onPressed: () => setState(() => _duration++),
-                             ),
-                           ],
-                         )
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline, color: Colors.grey),
+                          onPressed: () {
+                            if (_duration > 0) setState(() => _duration--);
+                          },
+                          constraints: const BoxConstraints(), 
+                          padding: EdgeInsets.zero,
+                          iconSize: 24, // Reduced from 28
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          _duration == 0 ? '0' : '$_duration',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Reduced from 24
+                        ),
+                        const SizedBox(width: 16),
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline, color: Colors.black),
+                          onPressed: () => setState(() => _duration++),
+                          constraints: const BoxConstraints(),
+                          padding: EdgeInsets.zero,
+                          iconSize: 24, // Reduced from 28
+                        ),
                       ],
                     ),
                   ),
@@ -219,23 +222,24 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontWeight: FontWeight.bold,
+                      fontSize: 14, // Explicit font size
                     ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 48),
+            const SizedBox(height: 24), // Reduced from 48
             ElevatedButton.icon(
               onPressed: _save,
               icon: const Icon(Icons.check),
               label: const Text('Save Schedule'),
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
+                minimumSize: const Size(double.infinity, 50), // Reduced height from 56
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16), // Reduced from 32
           ],
         ),
       ),
@@ -252,36 +256,35 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
     required VoidCallback onTimeTap,
   }) {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), 
       decoration: BoxDecoration(
-        color: isEnabled ? color.withAlpha(25) : Colors.white, // Surface color
+        color: isEnabled ? color.withAlpha(25) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isEnabled ? color : Colors.grey.shade200,
           width: 2,
         ),
       ),
-      child: ListTile(
-        onTap: onToggle,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.grey.shade100),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.grey.shade100),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
-          child: Icon(icon, color: color),
-        ),
-        title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(
-          isEnabled ? 'Tap to disable' : 'Tap to enable',
-          style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-        ),
-        trailing: isEnabled
-            ? InkWell(
+          const SizedBox(width: 12),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Spacer(),
+          if (isEnabled) ...[
+             InkWell(
                 onTap: onTimeTap,
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
@@ -290,17 +293,24 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.access_time, size: 16),
-                      const SizedBox(width: 8),
+                      const Icon(Icons.access_time, size: 14),
+                      const SizedBox(width: 6),
                       Text(
                         time?.format(context) ?? "--:--",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                       ),
                     ],
                   ),
                 ),
-              )
-            : null,
+              ),
+            const Spacer(),
+          ],
+          Switch.adaptive(
+            value: isEnabled, 
+            onChanged: (v) => onToggle(),
+            activeColor: color,
+          ),
+        ],
       ),
     );
   }
