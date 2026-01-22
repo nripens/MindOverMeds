@@ -5,6 +5,8 @@ import 'home_screen.dart';
 import 'add_medicine_screen.dart';
 import 'history_screen.dart';
 
+import 'bp_screen.dart';
+
 class MainLayout extends ConsumerStatefulWidget {
   const MainLayout({super.key});
 
@@ -19,6 +21,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     const HomeScreen(),
     const AddMedicineScreen(),
     const HistoryScreen(),
+    const BpScreen(),
   ];
 
   @override
@@ -50,6 +53,11 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
             icon: Icon(Icons.calendar_today_outlined),
             activeIcon: Icon(Icons.calendar_today),
             label: 'History',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.monitor_heart_outlined),
+            activeIcon: Icon(Icons.monitor_heart),
+            label: 'BP',
           ),
         ],
       ),

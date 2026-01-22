@@ -7,12 +7,12 @@ import 'tables.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Medicines, MedicineLogs])
+@DriftDatabase(tables: [Medicines, MedicineLogs, BloodPressureLogs])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -28,6 +28,16 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 3) {
             await m.createTable(medicineLogs);
+          }
+          if (from < 4) {
+             await m.createTable(bloodPressureLogs);
+          }
+          if (from < 5) {
+             await m.addColumn(medicines, medicines.frequencyType);
+             await m.addColumn(medicines, medicines.selectedDays);
+          }
+          if (from < 6) {
+             await m.addColumn(bloodPressureLogs, bloodPressureLogs.pulse);
           }
         },
       );

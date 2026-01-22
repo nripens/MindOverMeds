@@ -121,6 +121,29 @@ class $MedicinesTable extends Medicines
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _frequencyTypeMeta = const VerificationMeta(
+    'frequencyType',
+  );
+  @override
+  late final GeneratedColumn<int> frequencyType = GeneratedColumn<int>(
+    'frequency_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _selectedDaysMeta = const VerificationMeta(
+    'selectedDays',
+  );
+  @override
+  late final GeneratedColumn<String> selectedDays = GeneratedColumn<String>(
+    'selected_days',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -132,6 +155,8 @@ class $MedicinesTable extends Medicines
     afternoonTime,
     eveningTime,
     duration,
+    frequencyType,
+    selectedDays,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -216,6 +241,24 @@ class $MedicinesTable extends Medicines
         duration.isAcceptableOrUnknown(data['duration']!, _durationMeta),
       );
     }
+    if (data.containsKey('frequency_type')) {
+      context.handle(
+        _frequencyTypeMeta,
+        frequencyType.isAcceptableOrUnknown(
+          data['frequency_type']!,
+          _frequencyTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('selected_days')) {
+      context.handle(
+        _selectedDaysMeta,
+        selectedDays.isAcceptableOrUnknown(
+          data['selected_days']!,
+          _selectedDaysMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -261,6 +304,14 @@ class $MedicinesTable extends Medicines
         DriftSqlType.int,
         data['${effectivePrefix}duration'],
       )!,
+      frequencyType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}frequency_type'],
+      )!,
+      selectedDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}selected_days'],
+      ),
     );
   }
 
@@ -280,6 +331,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
   final String? afternoonTime;
   final String? eveningTime;
   final int duration;
+  final int frequencyType;
+  final String? selectedDays;
   const Medicine({
     required this.id,
     required this.name,
@@ -290,6 +343,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
     this.afternoonTime,
     this.eveningTime,
     required this.duration,
+    required this.frequencyType,
+    this.selectedDays,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -309,6 +364,10 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       map['evening_time'] = Variable<String>(eveningTime);
     }
     map['duration'] = Variable<int>(duration);
+    map['frequency_type'] = Variable<int>(frequencyType);
+    if (!nullToAbsent || selectedDays != null) {
+      map['selected_days'] = Variable<String>(selectedDays);
+    }
     return map;
   }
 
@@ -329,6 +388,10 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           ? const Value.absent()
           : Value(eveningTime),
       duration: Value(duration),
+      frequencyType: Value(frequencyType),
+      selectedDays: selectedDays == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectedDays),
     );
   }
 
@@ -347,6 +410,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       afternoonTime: serializer.fromJson<String?>(json['afternoonTime']),
       eveningTime: serializer.fromJson<String?>(json['eveningTime']),
       duration: serializer.fromJson<int>(json['duration']),
+      frequencyType: serializer.fromJson<int>(json['frequencyType']),
+      selectedDays: serializer.fromJson<String?>(json['selectedDays']),
     );
   }
   @override
@@ -362,6 +427,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       'afternoonTime': serializer.toJson<String?>(afternoonTime),
       'eveningTime': serializer.toJson<String?>(eveningTime),
       'duration': serializer.toJson<int>(duration),
+      'frequencyType': serializer.toJson<int>(frequencyType),
+      'selectedDays': serializer.toJson<String?>(selectedDays),
     };
   }
 
@@ -375,6 +442,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
     Value<String?> afternoonTime = const Value.absent(),
     Value<String?> eveningTime = const Value.absent(),
     int? duration,
+    int? frequencyType,
+    Value<String?> selectedDays = const Value.absent(),
   }) => Medicine(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -387,6 +456,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
         : this.afternoonTime,
     eveningTime: eveningTime.present ? eveningTime.value : this.eveningTime,
     duration: duration ?? this.duration,
+    frequencyType: frequencyType ?? this.frequencyType,
+    selectedDays: selectedDays.present ? selectedDays.value : this.selectedDays,
   );
   Medicine copyWithCompanion(MedicinesCompanion data) {
     return Medicine(
@@ -411,6 +482,12 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           ? data.eveningTime.value
           : this.eveningTime,
       duration: data.duration.present ? data.duration.value : this.duration,
+      frequencyType: data.frequencyType.present
+          ? data.frequencyType.value
+          : this.frequencyType,
+      selectedDays: data.selectedDays.present
+          ? data.selectedDays.value
+          : this.selectedDays,
     );
   }
 
@@ -425,7 +502,9 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           ..write('morningTime: $morningTime, ')
           ..write('afternoonTime: $afternoonTime, ')
           ..write('eveningTime: $eveningTime, ')
-          ..write('duration: $duration')
+          ..write('duration: $duration, ')
+          ..write('frequencyType: $frequencyType, ')
+          ..write('selectedDays: $selectedDays')
           ..write(')'))
         .toString();
   }
@@ -441,6 +520,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
     afternoonTime,
     eveningTime,
     duration,
+    frequencyType,
+    selectedDays,
   );
   @override
   bool operator ==(Object other) =>
@@ -454,7 +535,9 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           other.morningTime == this.morningTime &&
           other.afternoonTime == this.afternoonTime &&
           other.eveningTime == this.eveningTime &&
-          other.duration == this.duration);
+          other.duration == this.duration &&
+          other.frequencyType == this.frequencyType &&
+          other.selectedDays == this.selectedDays);
 }
 
 class MedicinesCompanion extends UpdateCompanion<Medicine> {
@@ -467,6 +550,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
   final Value<String?> afternoonTime;
   final Value<String?> eveningTime;
   final Value<int> duration;
+  final Value<int> frequencyType;
+  final Value<String?> selectedDays;
   const MedicinesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -477,6 +562,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     this.afternoonTime = const Value.absent(),
     this.eveningTime = const Value.absent(),
     this.duration = const Value.absent(),
+    this.frequencyType = const Value.absent(),
+    this.selectedDays = const Value.absent(),
   });
   MedicinesCompanion.insert({
     this.id = const Value.absent(),
@@ -488,6 +575,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     this.afternoonTime = const Value.absent(),
     this.eveningTime = const Value.absent(),
     this.duration = const Value.absent(),
+    this.frequencyType = const Value.absent(),
+    this.selectedDays = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Medicine> custom({
     Expression<int>? id,
@@ -499,6 +588,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     Expression<String>? afternoonTime,
     Expression<String>? eveningTime,
     Expression<int>? duration,
+    Expression<int>? frequencyType,
+    Expression<String>? selectedDays,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -510,6 +601,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       if (afternoonTime != null) 'afternoon_time': afternoonTime,
       if (eveningTime != null) 'evening_time': eveningTime,
       if (duration != null) 'duration': duration,
+      if (frequencyType != null) 'frequency_type': frequencyType,
+      if (selectedDays != null) 'selected_days': selectedDays,
     });
   }
 
@@ -523,6 +616,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     Value<String?>? afternoonTime,
     Value<String?>? eveningTime,
     Value<int>? duration,
+    Value<int>? frequencyType,
+    Value<String?>? selectedDays,
   }) {
     return MedicinesCompanion(
       id: id ?? this.id,
@@ -534,6 +629,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       afternoonTime: afternoonTime ?? this.afternoonTime,
       eveningTime: eveningTime ?? this.eveningTime,
       duration: duration ?? this.duration,
+      frequencyType: frequencyType ?? this.frequencyType,
+      selectedDays: selectedDays ?? this.selectedDays,
     );
   }
 
@@ -567,6 +664,12 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     if (duration.present) {
       map['duration'] = Variable<int>(duration.value);
     }
+    if (frequencyType.present) {
+      map['frequency_type'] = Variable<int>(frequencyType.value);
+    }
+    if (selectedDays.present) {
+      map['selected_days'] = Variable<String>(selectedDays.value);
+    }
     return map;
   }
 
@@ -581,7 +684,9 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
           ..write('morningTime: $morningTime, ')
           ..write('afternoonTime: $afternoonTime, ')
           ..write('eveningTime: $eveningTime, ')
-          ..write('duration: $duration')
+          ..write('duration: $duration, ')
+          ..write('frequencyType: $frequencyType, ')
+          ..write('selectedDays: $selectedDays')
           ..write(')'))
         .toString();
   }
@@ -943,16 +1048,467 @@ class MedicineLogsCompanion extends UpdateCompanion<MedicineLog> {
   }
 }
 
+class $BloodPressureLogsTable extends BloodPressureLogs
+    with TableInfo<$BloodPressureLogsTable, BloodPressureLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BloodPressureLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _systolicMeta = const VerificationMeta(
+    'systolic',
+  );
+  @override
+  late final GeneratedColumn<int> systolic = GeneratedColumn<int>(
+    'systolic',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _diastolicMeta = const VerificationMeta(
+    'diastolic',
+  );
+  @override
+  late final GeneratedColumn<int> diastolic = GeneratedColumn<int>(
+    'diastolic',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _loggedAtMeta = const VerificationMeta(
+    'loggedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> loggedAt = GeneratedColumn<DateTime>(
+    'logged_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _slotMeta = const VerificationMeta('slot');
+  @override
+  late final GeneratedColumn<String> slot = GeneratedColumn<String>(
+    'slot',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextMeta = const VerificationMeta(
+    'context',
+  );
+  @override
+  late final GeneratedColumn<String> context = GeneratedColumn<String>(
+    'context',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pulseMeta = const VerificationMeta('pulse');
+  @override
+  late final GeneratedColumn<int> pulse = GeneratedColumn<int>(
+    'pulse',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    systolic,
+    diastolic,
+    loggedAt,
+    slot,
+    context,
+    pulse,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'blood_pressure_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BloodPressureLog> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('systolic')) {
+      context.handle(
+        _systolicMeta,
+        systolic.isAcceptableOrUnknown(data['systolic']!, _systolicMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_systolicMeta);
+    }
+    if (data.containsKey('diastolic')) {
+      context.handle(
+        _diastolicMeta,
+        diastolic.isAcceptableOrUnknown(data['diastolic']!, _diastolicMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_diastolicMeta);
+    }
+    if (data.containsKey('logged_at')) {
+      context.handle(
+        _loggedAtMeta,
+        loggedAt.isAcceptableOrUnknown(data['logged_at']!, _loggedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_loggedAtMeta);
+    }
+    if (data.containsKey('slot')) {
+      context.handle(
+        _slotMeta,
+        slot.isAcceptableOrUnknown(data['slot']!, _slotMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_slotMeta);
+    }
+    if (data.containsKey('context')) {
+      context.handle(
+        _contextMeta,
+        this.context.isAcceptableOrUnknown(data['context']!, _contextMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contextMeta);
+    }
+    if (data.containsKey('pulse')) {
+      context.handle(
+        _pulseMeta,
+        pulse.isAcceptableOrUnknown(data['pulse']!, _pulseMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BloodPressureLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BloodPressureLog(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      systolic: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}systolic'],
+      )!,
+      diastolic: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}diastolic'],
+      )!,
+      loggedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}logged_at'],
+      )!,
+      slot: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}slot'],
+      )!,
+      context: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}context'],
+      )!,
+      pulse: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pulse'],
+      ),
+    );
+  }
+
+  @override
+  $BloodPressureLogsTable createAlias(String alias) {
+    return $BloodPressureLogsTable(attachedDatabase, alias);
+  }
+}
+
+class BloodPressureLog extends DataClass
+    implements Insertable<BloodPressureLog> {
+  final int id;
+  final int systolic;
+  final int diastolic;
+  final DateTime loggedAt;
+  final String slot;
+  final String context;
+  final int? pulse;
+  const BloodPressureLog({
+    required this.id,
+    required this.systolic,
+    required this.diastolic,
+    required this.loggedAt,
+    required this.slot,
+    required this.context,
+    this.pulse,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['systolic'] = Variable<int>(systolic);
+    map['diastolic'] = Variable<int>(diastolic);
+    map['logged_at'] = Variable<DateTime>(loggedAt);
+    map['slot'] = Variable<String>(slot);
+    map['context'] = Variable<String>(context);
+    if (!nullToAbsent || pulse != null) {
+      map['pulse'] = Variable<int>(pulse);
+    }
+    return map;
+  }
+
+  BloodPressureLogsCompanion toCompanion(bool nullToAbsent) {
+    return BloodPressureLogsCompanion(
+      id: Value(id),
+      systolic: Value(systolic),
+      diastolic: Value(diastolic),
+      loggedAt: Value(loggedAt),
+      slot: Value(slot),
+      context: Value(context),
+      pulse: pulse == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pulse),
+    );
+  }
+
+  factory BloodPressureLog.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BloodPressureLog(
+      id: serializer.fromJson<int>(json['id']),
+      systolic: serializer.fromJson<int>(json['systolic']),
+      diastolic: serializer.fromJson<int>(json['diastolic']),
+      loggedAt: serializer.fromJson<DateTime>(json['loggedAt']),
+      slot: serializer.fromJson<String>(json['slot']),
+      context: serializer.fromJson<String>(json['context']),
+      pulse: serializer.fromJson<int?>(json['pulse']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'systolic': serializer.toJson<int>(systolic),
+      'diastolic': serializer.toJson<int>(diastolic),
+      'loggedAt': serializer.toJson<DateTime>(loggedAt),
+      'slot': serializer.toJson<String>(slot),
+      'context': serializer.toJson<String>(context),
+      'pulse': serializer.toJson<int?>(pulse),
+    };
+  }
+
+  BloodPressureLog copyWith({
+    int? id,
+    int? systolic,
+    int? diastolic,
+    DateTime? loggedAt,
+    String? slot,
+    String? context,
+    Value<int?> pulse = const Value.absent(),
+  }) => BloodPressureLog(
+    id: id ?? this.id,
+    systolic: systolic ?? this.systolic,
+    diastolic: diastolic ?? this.diastolic,
+    loggedAt: loggedAt ?? this.loggedAt,
+    slot: slot ?? this.slot,
+    context: context ?? this.context,
+    pulse: pulse.present ? pulse.value : this.pulse,
+  );
+  BloodPressureLog copyWithCompanion(BloodPressureLogsCompanion data) {
+    return BloodPressureLog(
+      id: data.id.present ? data.id.value : this.id,
+      systolic: data.systolic.present ? data.systolic.value : this.systolic,
+      diastolic: data.diastolic.present ? data.diastolic.value : this.diastolic,
+      loggedAt: data.loggedAt.present ? data.loggedAt.value : this.loggedAt,
+      slot: data.slot.present ? data.slot.value : this.slot,
+      context: data.context.present ? data.context.value : this.context,
+      pulse: data.pulse.present ? data.pulse.value : this.pulse,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BloodPressureLog(')
+          ..write('id: $id, ')
+          ..write('systolic: $systolic, ')
+          ..write('diastolic: $diastolic, ')
+          ..write('loggedAt: $loggedAt, ')
+          ..write('slot: $slot, ')
+          ..write('context: $context, ')
+          ..write('pulse: $pulse')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, systolic, diastolic, loggedAt, slot, context, pulse);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BloodPressureLog &&
+          other.id == this.id &&
+          other.systolic == this.systolic &&
+          other.diastolic == this.diastolic &&
+          other.loggedAt == this.loggedAt &&
+          other.slot == this.slot &&
+          other.context == this.context &&
+          other.pulse == this.pulse);
+}
+
+class BloodPressureLogsCompanion extends UpdateCompanion<BloodPressureLog> {
+  final Value<int> id;
+  final Value<int> systolic;
+  final Value<int> diastolic;
+  final Value<DateTime> loggedAt;
+  final Value<String> slot;
+  final Value<String> context;
+  final Value<int?> pulse;
+  const BloodPressureLogsCompanion({
+    this.id = const Value.absent(),
+    this.systolic = const Value.absent(),
+    this.diastolic = const Value.absent(),
+    this.loggedAt = const Value.absent(),
+    this.slot = const Value.absent(),
+    this.context = const Value.absent(),
+    this.pulse = const Value.absent(),
+  });
+  BloodPressureLogsCompanion.insert({
+    this.id = const Value.absent(),
+    required int systolic,
+    required int diastolic,
+    required DateTime loggedAt,
+    required String slot,
+    required String context,
+    this.pulse = const Value.absent(),
+  }) : systolic = Value(systolic),
+       diastolic = Value(diastolic),
+       loggedAt = Value(loggedAt),
+       slot = Value(slot),
+       context = Value(context);
+  static Insertable<BloodPressureLog> custom({
+    Expression<int>? id,
+    Expression<int>? systolic,
+    Expression<int>? diastolic,
+    Expression<DateTime>? loggedAt,
+    Expression<String>? slot,
+    Expression<String>? context,
+    Expression<int>? pulse,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (systolic != null) 'systolic': systolic,
+      if (diastolic != null) 'diastolic': diastolic,
+      if (loggedAt != null) 'logged_at': loggedAt,
+      if (slot != null) 'slot': slot,
+      if (context != null) 'context': context,
+      if (pulse != null) 'pulse': pulse,
+    });
+  }
+
+  BloodPressureLogsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? systolic,
+    Value<int>? diastolic,
+    Value<DateTime>? loggedAt,
+    Value<String>? slot,
+    Value<String>? context,
+    Value<int?>? pulse,
+  }) {
+    return BloodPressureLogsCompanion(
+      id: id ?? this.id,
+      systolic: systolic ?? this.systolic,
+      diastolic: diastolic ?? this.diastolic,
+      loggedAt: loggedAt ?? this.loggedAt,
+      slot: slot ?? this.slot,
+      context: context ?? this.context,
+      pulse: pulse ?? this.pulse,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (systolic.present) {
+      map['systolic'] = Variable<int>(systolic.value);
+    }
+    if (diastolic.present) {
+      map['diastolic'] = Variable<int>(diastolic.value);
+    }
+    if (loggedAt.present) {
+      map['logged_at'] = Variable<DateTime>(loggedAt.value);
+    }
+    if (slot.present) {
+      map['slot'] = Variable<String>(slot.value);
+    }
+    if (context.present) {
+      map['context'] = Variable<String>(context.value);
+    }
+    if (pulse.present) {
+      map['pulse'] = Variable<int>(pulse.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BloodPressureLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('systolic: $systolic, ')
+          ..write('diastolic: $diastolic, ')
+          ..write('loggedAt: $loggedAt, ')
+          ..write('slot: $slot, ')
+          ..write('context: $context, ')
+          ..write('pulse: $pulse')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $MedicinesTable medicines = $MedicinesTable(this);
   late final $MedicineLogsTable medicineLogs = $MedicineLogsTable(this);
+  late final $BloodPressureLogsTable bloodPressureLogs =
+      $BloodPressureLogsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [medicines, medicineLogs];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    medicines,
+    medicineLogs,
+    bloodPressureLogs,
+  ];
 }
 
 typedef $$MedicinesTableCreateCompanionBuilder =
@@ -966,6 +1522,8 @@ typedef $$MedicinesTableCreateCompanionBuilder =
       Value<String?> afternoonTime,
       Value<String?> eveningTime,
       Value<int> duration,
+      Value<int> frequencyType,
+      Value<String?> selectedDays,
     });
 typedef $$MedicinesTableUpdateCompanionBuilder =
     MedicinesCompanion Function({
@@ -978,6 +1536,8 @@ typedef $$MedicinesTableUpdateCompanionBuilder =
       Value<String?> afternoonTime,
       Value<String?> eveningTime,
       Value<int> duration,
+      Value<int> frequencyType,
+      Value<String?> selectedDays,
     });
 
 final class $$MedicinesTableReferences
@@ -1060,6 +1620,16 @@ class $$MedicinesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get frequencyType => $composableBuilder(
+    column: $table.frequencyType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get selectedDays => $composableBuilder(
+    column: $table.selectedDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> medicineLogsRefs(
     Expression<bool> Function($$MedicineLogsTableFilterComposer f) f,
   ) {
@@ -1139,6 +1709,16 @@ class $$MedicinesTableOrderingComposer
     column: $table.duration,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get frequencyType => $composableBuilder(
+    column: $table.frequencyType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get selectedDays => $composableBuilder(
+    column: $table.selectedDays,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$MedicinesTableAnnotationComposer
@@ -1188,6 +1768,16 @@ class $$MedicinesTableAnnotationComposer
 
   GeneratedColumn<int> get duration =>
       $composableBuilder(column: $table.duration, builder: (column) => column);
+
+  GeneratedColumn<int> get frequencyType => $composableBuilder(
+    column: $table.frequencyType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get selectedDays => $composableBuilder(
+    column: $table.selectedDays,
+    builder: (column) => column,
+  );
 
   Expression<T> medicineLogsRefs<T extends Object>(
     Expression<T> Function($$MedicineLogsTableAnnotationComposer a) f,
@@ -1252,6 +1842,8 @@ class $$MedicinesTableTableManager
                 Value<String?> afternoonTime = const Value.absent(),
                 Value<String?> eveningTime = const Value.absent(),
                 Value<int> duration = const Value.absent(),
+                Value<int> frequencyType = const Value.absent(),
+                Value<String?> selectedDays = const Value.absent(),
               }) => MedicinesCompanion(
                 id: id,
                 name: name,
@@ -1262,6 +1854,8 @@ class $$MedicinesTableTableManager
                 afternoonTime: afternoonTime,
                 eveningTime: eveningTime,
                 duration: duration,
+                frequencyType: frequencyType,
+                selectedDays: selectedDays,
               ),
           createCompanionCallback:
               ({
@@ -1274,6 +1868,8 @@ class $$MedicinesTableTableManager
                 Value<String?> afternoonTime = const Value.absent(),
                 Value<String?> eveningTime = const Value.absent(),
                 Value<int> duration = const Value.absent(),
+                Value<int> frequencyType = const Value.absent(),
+                Value<String?> selectedDays = const Value.absent(),
               }) => MedicinesCompanion.insert(
                 id: id,
                 name: name,
@@ -1284,6 +1880,8 @@ class $$MedicinesTableTableManager
                 afternoonTime: afternoonTime,
                 eveningTime: eveningTime,
                 duration: duration,
+                frequencyType: frequencyType,
+                selectedDays: selectedDays,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -1654,6 +2252,251 @@ typedef $$MedicineLogsTableProcessedTableManager =
       MedicineLog,
       PrefetchHooks Function({bool medicineId})
     >;
+typedef $$BloodPressureLogsTableCreateCompanionBuilder =
+    BloodPressureLogsCompanion Function({
+      Value<int> id,
+      required int systolic,
+      required int diastolic,
+      required DateTime loggedAt,
+      required String slot,
+      required String context,
+      Value<int?> pulse,
+    });
+typedef $$BloodPressureLogsTableUpdateCompanionBuilder =
+    BloodPressureLogsCompanion Function({
+      Value<int> id,
+      Value<int> systolic,
+      Value<int> diastolic,
+      Value<DateTime> loggedAt,
+      Value<String> slot,
+      Value<String> context,
+      Value<int?> pulse,
+    });
+
+class $$BloodPressureLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $BloodPressureLogsTable> {
+  $$BloodPressureLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get systolic => $composableBuilder(
+    column: $table.systolic,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get diastolic => $composableBuilder(
+    column: $table.diastolic,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get loggedAt => $composableBuilder(
+    column: $table.loggedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get slot => $composableBuilder(
+    column: $table.slot,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get context => $composableBuilder(
+    column: $table.context,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pulse => $composableBuilder(
+    column: $table.pulse,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BloodPressureLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BloodPressureLogsTable> {
+  $$BloodPressureLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get systolic => $composableBuilder(
+    column: $table.systolic,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get diastolic => $composableBuilder(
+    column: $table.diastolic,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get loggedAt => $composableBuilder(
+    column: $table.loggedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get slot => $composableBuilder(
+    column: $table.slot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get context => $composableBuilder(
+    column: $table.context,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pulse => $composableBuilder(
+    column: $table.pulse,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BloodPressureLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BloodPressureLogsTable> {
+  $$BloodPressureLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get systolic =>
+      $composableBuilder(column: $table.systolic, builder: (column) => column);
+
+  GeneratedColumn<int> get diastolic =>
+      $composableBuilder(column: $table.diastolic, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get loggedAt =>
+      $composableBuilder(column: $table.loggedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get slot =>
+      $composableBuilder(column: $table.slot, builder: (column) => column);
+
+  GeneratedColumn<String> get context =>
+      $composableBuilder(column: $table.context, builder: (column) => column);
+
+  GeneratedColumn<int> get pulse =>
+      $composableBuilder(column: $table.pulse, builder: (column) => column);
+}
+
+class $$BloodPressureLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BloodPressureLogsTable,
+          BloodPressureLog,
+          $$BloodPressureLogsTableFilterComposer,
+          $$BloodPressureLogsTableOrderingComposer,
+          $$BloodPressureLogsTableAnnotationComposer,
+          $$BloodPressureLogsTableCreateCompanionBuilder,
+          $$BloodPressureLogsTableUpdateCompanionBuilder,
+          (
+            BloodPressureLog,
+            BaseReferences<
+              _$AppDatabase,
+              $BloodPressureLogsTable,
+              BloodPressureLog
+            >,
+          ),
+          BloodPressureLog,
+          PrefetchHooks Function()
+        > {
+  $$BloodPressureLogsTableTableManager(
+    _$AppDatabase db,
+    $BloodPressureLogsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BloodPressureLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BloodPressureLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BloodPressureLogsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> systolic = const Value.absent(),
+                Value<int> diastolic = const Value.absent(),
+                Value<DateTime> loggedAt = const Value.absent(),
+                Value<String> slot = const Value.absent(),
+                Value<String> context = const Value.absent(),
+                Value<int?> pulse = const Value.absent(),
+              }) => BloodPressureLogsCompanion(
+                id: id,
+                systolic: systolic,
+                diastolic: diastolic,
+                loggedAt: loggedAt,
+                slot: slot,
+                context: context,
+                pulse: pulse,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int systolic,
+                required int diastolic,
+                required DateTime loggedAt,
+                required String slot,
+                required String context,
+                Value<int?> pulse = const Value.absent(),
+              }) => BloodPressureLogsCompanion.insert(
+                id: id,
+                systolic: systolic,
+                diastolic: diastolic,
+                loggedAt: loggedAt,
+                slot: slot,
+                context: context,
+                pulse: pulse,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BloodPressureLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BloodPressureLogsTable,
+      BloodPressureLog,
+      $$BloodPressureLogsTableFilterComposer,
+      $$BloodPressureLogsTableOrderingComposer,
+      $$BloodPressureLogsTableAnnotationComposer,
+      $$BloodPressureLogsTableCreateCompanionBuilder,
+      $$BloodPressureLogsTableUpdateCompanionBuilder,
+      (
+        BloodPressureLog,
+        BaseReferences<
+          _$AppDatabase,
+          $BloodPressureLogsTable,
+          BloodPressureLog
+        >,
+      ),
+      BloodPressureLog,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1662,4 +2505,6 @@ class $AppDatabaseManager {
       $$MedicinesTableTableManager(_db, _db.medicines);
   $$MedicineLogsTableTableManager get medicineLogs =>
       $$MedicineLogsTableTableManager(_db, _db.medicineLogs);
+  $$BloodPressureLogsTableTableManager get bloodPressureLogs =>
+      $$BloodPressureLogsTableTableManager(_db, _db.bloodPressureLogs);
 }

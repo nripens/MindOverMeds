@@ -42,9 +42,25 @@ class HomeScreen extends ConsumerWidget {
               // Or just count total taken slots vs total scheduled slots?
               // User said "0 / X Taken". Let's count *medicines* fully taken for simplicity or slots?
               // Simplest: Count number of "Green Checks" vs Total Checks.
+              // Simplest: Count number of "Green Checks" vs Total Checks.
+              
+              // Filter Medicines for Today
+              final todaysMedicines = medicines.where((m) {
+                 if (m.frequencyType == 0) return true; // Daily
+                 if (m.selectedDays == null || m.selectedDays!.isEmpty) return false;
+                 
+                 final days = m.selectedDays!.split(',').map(int.tryParse).whereType<int>().toSet();
+                 return days.contains(today.weekday);
+              }).toList();
+
+              if (todaysMedicines.isEmpty) {
+                return _buildEmptyState(context);
+              }
+
+              // Calculate Taken Count based on filtered list
               int totalSlots = 0;
-              int takenSlots = logs.length; // Assuming logs only storing "taken=true"
-              for (var m in medicines) {
+              int takenSlots = logs.where((l) => todaysMedicines.any((m) => m.id == l.medicineId)).length; // Only count logs for today's meds
+              for (var m in todaysMedicines) {
                 if (m.takeMorning) totalSlots++;
                 if (m.takeAfternoon) totalSlots++;
                 if (m.takeEvening) totalSlots++;
@@ -79,7 +95,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 24),
                   
-                  ...medicines.map((medicine) => _buildMedicineCard(context, medicine, logs, ref, today)),
+                  ...todaysMedicines.map((medicine) => _buildMedicineCard(context, medicine, logs, ref, today)),
                 ],
               );
             },

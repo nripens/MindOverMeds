@@ -24,3 +24,8 @@ final logsForDateProvider = StreamProvider.family<List<MedicineLog>, DateTime>((
   final repository = ref.watch(medicineRepositoryProvider);
   return repository.watchLogsForDate(date);
 });
+
+final bpLogsProvider = StreamProvider<List<BloodPressureLog>>((ref) {
+  final repository = ref.watch(medicineRepositoryProvider);
+  return repository.watchBpLogs();
+});

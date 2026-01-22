@@ -11,7 +11,7 @@ import java.io.FileInputStream
 android {
     namespace = "com.mindovermeds.mind_over_meds"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -60,6 +60,16 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+
+    packaging {
+        jniLibs.keepDebugSymbols.add("**/*.so")
+    }
+}
+
+tasks.configureEach {
+    if (name.contains("strip") && name.contains("Release")) {
+        enabled = false
     }
 }
 

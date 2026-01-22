@@ -13,7 +13,7 @@ class MedicineRepositoryImpl implements MedicineRepository {
   }
 
   @override
-  Future<void> addMedicine({
+  Future<int> addMedicine({
     required String name,
     required bool morning,
     required bool afternoon,
@@ -22,8 +22,10 @@ class MedicineRepositoryImpl implements MedicineRepository {
     String? afternoonTime,
     String? eveningTime,
     required int duration,
+    int frequencyType = 0,
+    String? selectedDays,
   }) async {
-    await _db.into(_db.medicines).insert(
+    return await _db.into(_db.medicines).insert(
       MedicinesCompanion(
         name: Value(name),
         takeMorning: Value(morning),
@@ -33,8 +35,15 @@ class MedicineRepositoryImpl implements MedicineRepository {
         afternoonTime: Value(afternoonTime),
         eveningTime: Value(eveningTime),
         duration: Value(duration),
+        frequencyType: Value(frequencyType),
+        selectedDays: Value(selectedDays),
       ),
     );
+  }
+
+  @override
+  Future<void> updateMedicine(Medicine medicine) async {
+    await _db.update(_db.medicines).replace(medicine);
   }
 
   @override
@@ -79,5 +88,36 @@ class MedicineRepositoryImpl implements MedicineRepository {
         )
       ).go();
     }
+  }
+
+  @override
+  Stream<List<BloodPressureLog>> watchBpLogs() {
+    return (_db.select(_db.bloodPressureLogs)
+          ..orderBy([(t) => OrderingTerm(expression: t.loggedAt, mode: OrderingMode.desc)]))
+        .watch();
+  }
+
+  @override
+  Future<void> addBpLog(int systolic, int diastolic, int? pulse, DateTime date, String slot, String context) async {
+    await _db.into(_db.bloodPressureLogs).insert(
+      BloodPressureLogsCompanion(
+        systolic: Value(systolic),
+        diastolic: Value(diastolic),
+        pulse: Value(pulse),
+        loggedAt: Value(date),
+        slot: Value(slot),
+        context: Value(context),
+      ),
+    );
+  }
+
+  @override
+  Future<void> updateBpLog(BloodPressureLog log) async {
+    await _db.update(_db.bloodPressureLogs).replace(log);
+  }
+
+  @override
+  Future<void> deleteBpLog(BloodPressureLog log) async {
+    await _db.bloodPressureLogs.deleteWhere((t) => t.id.equals(log.id));
   }
 }
