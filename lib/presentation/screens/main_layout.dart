@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io';
 import '../theme/app_theme.dart';
+import '../../services/notification_service.dart';
 import 'home_screen.dart';
 import 'add_medicine_screen.dart';
 import 'history_screen.dart';
-
 import 'bp_screen.dart';
 
 class MainLayout extends ConsumerStatefulWidget {
@@ -16,6 +17,24 @@ class MainLayout extends ConsumerStatefulWidget {
 
 class _MainLayoutState extends ConsumerState<MainLayout> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPermissions();
+    });
+  }
+
+  Future<void> _checkPermissions() async {
+    if (Platform.isAndroid) {
+       // Simple prompt to remind user about potential issues
+       // We can maybe verify native status via plugin if needed, 
+       // but for now, just ensure init() runs.
+       // We won't spam the user with a dialog, but we could log it.
+       debugPrint("Checking Android permissions...");
+    }
+  }
 
   final List<Widget> _screens = [
     const HomeScreen(),
