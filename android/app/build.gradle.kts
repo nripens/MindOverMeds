@@ -56,21 +56,9 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            // shrinkResources = true // Enable later if needed for minimal size
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
-    packaging {
-        jniLibs.keepDebugSymbols.add("**/*.so")
-    }
-}
-
-tasks.configureEach {
-    if (name.contains("strip") && name.contains("Release")) {
-        enabled = false
-    }
 }
 
 flutter {
