@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/local/database.dart'; // For Medicine, MedicineLog
 import '../viewmodels/medicine_provider.dart';
 import '../theme/app_theme.dart';
+import '../../services/notification_service.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -28,7 +29,15 @@ class HomeScreen extends ConsumerWidget {
         centerTitle: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        actions: [],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_active_outlined, color: Colors.blue),
+            tooltip: "Test 5-second Notification",
+            onPressed: () {
+               NotificationService.testNotification();
+            },
+          )
+        ],
       ),
       body: medicinesAsync.when(
         data: (medicines) {

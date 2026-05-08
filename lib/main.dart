@@ -9,6 +9,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await NotificationService.init();
+    // Critical fix: Request permissions on startup
+    await NotificationService.requestPermissions();
   } catch (e) {
     print('Failed to initialize notifications: $e');
   }

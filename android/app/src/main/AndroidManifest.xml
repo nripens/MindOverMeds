@@ -42,7 +42,8 @@
             android:name="flutterEmbedding"
             android:value="2" />
         
-        <!-- Explicitly declare Boot Receiver for flutter_local_notifications -->
+        <!-- Explicitly declare Receivers for flutter_local_notifications -->
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
             android:exported="true">

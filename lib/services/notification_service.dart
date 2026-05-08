@@ -11,6 +11,7 @@ import '../data/local/database.dart';
 
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse notificationResponse) {
+  WidgetsFlutterBinding.ensureInitialized();
   NotificationService.handleAction(notificationResponse);
 }
 
@@ -18,7 +19,7 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
-  static const String _channelId = 'medicine_reminders';
+  static const String _channelId = 'medicine_reminders_v2';
   static const String _channelName = 'Medicine Reminders';
   static const String _channelDesc = 'Reminders to take your medicine';
 
@@ -27,8 +28,12 @@ class NotificationService {
 
   static Future<void> init() async {
     tz.initializeTimeZones();
-    final String timeZoneName = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
+    try {
+      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    } catch (e) {
+      debugPrint('[NotificationService] Error setting local timezone: $e');
+    }
 
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/launcher_icon');
@@ -53,7 +58,9 @@ class NotificationService {
       },
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
+  }
 
+  static Future<void> requestPermissions() async {
     await _requestPermissions();
   }
 
@@ -205,7 +212,10 @@ class NotificationService {
     int medId,
     {int? day}
   ) async {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    final tz.TZDateTime exactNow = tz.TZDateTime.now(tz.local);
+    // Strip seconds to prevent "current minute" offset bug pushing alarms to tomorrow
+    final tz.TZDateTime now = tz.TZDateTime(tz.local, exactNow.year, exactNow.month, exactNow.day, exactNow.hour, exactNow.minute);
+
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
@@ -252,5 +262,23 @@ class NotificationService {
           await _notifications.cancel(id * 100 + (d * 10) + s);
        }
      }
+  }
+
+  // --- Local Testing Helper ---
+  static Future<void> testNotification() async {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    final tz.TZDateTime scheduledDate = now.add(const Duration(seconds: 5));
+
+    await _notifications.zonedSchedule(
+      999999, // Test ID
+      'Test Reminder',
+      'This is a local 5-second test notification!',
+      scheduledDate,
+      _notificationDetails(actionName: 'Done'),
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      payload: "0|Test|Test Med", // Mock payload
+    );
   }
 }
